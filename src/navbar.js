@@ -1,13 +1,27 @@
-const navbar = () => {
-    return (
-        <nav className="navbar">
+import React from 'react';
 
-            <h1>To-Do</h1>
-            {/* <div className="links">
-                <a href="/">theme to add</a>
-            </div> */}
-        </nav>
-    );
-}
- 
-export default navbar;
+const Navbar = ({ theme, toggleTheme }) => {
+  return (
+    <div className="navbar">
+      <h1 style={{ margin: 0 }}>Todo App</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button 
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+            color: 'var(--accent-color)'
+          }}
+        >
+          {theme === 'dark' ? '🌞' : '🌙'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Navbar;

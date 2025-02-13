@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import Navbar from './navbar';
-import { closestCorners, DndContext } from '@dnd-kit/core';
+import Navbar from './Navbar';
+import { closestCorners, DndContext } from '@dnd-kit/core'; // drag and drop
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -18,16 +18,17 @@ function SortableItem({ id, item, onDelete }) {
       ref={setNodeRef} 
       style={style} 
       className="task-item" 
-      {...attributes} 
-      {...listeners}
+      {...attributes}
     >
       <button
         className="buttons"
-        onClick={() => onDelete(id)} // Immediate delete action on click
+        onClick={() => onDelete(id)}
       >
         -
       </button>
-      {item}
+      <div className="task-content" {...listeners}>
+        {item}
+      </div>
     </div>
   );
 }
@@ -35,23 +36,30 @@ function SortableItem({ id, item, onDelete }) {
 function App() {
   const getInitialData = () => {
     const savedData = localStorage.getItem('toDoData');
-    if (savedData) {
-      try {
-        return JSON.parse(savedData);
-      } catch (error) {
-        console.error('Error parsing localStorage data:', error);
-        return [];
-      }
-    }
-    return [];
+    return savedData ? JSON.parse(savedData) : [];
+  };
+
+  const getInitialTheme = () => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme || 'dark';
   };
 
   const [task, setTask] = useState('');
   const [data, setData] = useState(getInitialData);
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     localStorage.setItem('toDoData', JSON.stringify(data));
   }, [data]);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const changedata = (newTask) => {
     const newItem = { id: Date.now().toString(), task: newTask };
@@ -59,25 +67,23 @@ function App() {
   };
 
   const deletedata = (id) => {
-    setData((prevData) => prevData.filter((item) => item.id !== id)); // Immediate deletion on click
+    setData((prevData) => prevData.filter((item) => item.id !== id));
   };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-
     if (!over || active.id === over.id) return;
 
     setData((prevData) => {
       const oldIndex = prevData.findIndex((item) => item.id === active.id);
       const newIndex = prevData.findIndex((item) => item.id === over.id);
-
       return arrayMove(prevData, oldIndex, newIndex);
     });
   };
 
   return (
     <div className="app">
-      <Navbar />
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <div className="content">
         <div className="head">
           <form
@@ -109,7 +115,12 @@ function App() {
           <SortableContext items={data.map((item) => item.id)} strategy={verticalListSortingStrategy}>
             <div className="tasks">
               {data.map((item) => (
-                <SortableItem key={item.id} id={item.id} item={item.task} onDelete={deletedata} />
+                <SortableItem 
+                  key={item.id} 
+                  id={item.id} 
+                  item={item.task} 
+                  onDelete={deletedata} 
+                />
               ))}
             </div>
           </SortableContext>
