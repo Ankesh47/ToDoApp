@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Navbar from './Navbar';
+import Navbar from './navbar';
 import { closestCorners, DndContext } from '@dnd-kit/core'; // drag and drop
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
